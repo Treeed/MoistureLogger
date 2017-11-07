@@ -53,7 +53,7 @@ void setup() {
   pinMode(A2, OUTPUT); // DHT
   digitalWrite(A2, LOW);
 
-  //Serial.begin(38400);
+  Serial.begin(115200);
   tft.begin();
   tft.setRotation(2);
   tft.fillScreen(ILI9341_BLACK);
@@ -79,7 +79,7 @@ unsigned long dhtStartupMillis = 1500;
 int hdtWriteCount = 1;
 
 unsigned long tftOnMillis = 0;
-unsigned long tftOffIntervalMillis = 10L * 1000L;
+unsigned long tftOffIntervalMillis = 20L * 1000L;
 
 int touchCount = 0;
 bool isDisplayOn = false;
@@ -99,6 +99,7 @@ void loop() {
     // Display off
     digitalWrite(3, HIGH);
     isDisplayOn = false;
+    touchCount = 0;
   }
 
   boolean istouched = ts.touched();
@@ -115,23 +116,31 @@ void loop() {
     TS_Point p = ts.getPoint();
 
     UpdatePrint(touchCount);
-    if (touchCount == 2) {
-      touchCount = 0;
+    if (touchCount == 1) {
+      touchCount = -1;
     }
   }
+  //Serial.println(freeRam());
 
   delay(100);
 }
 
 void UpdatePrint(int touchCount) {
   Printer *printer;
-  if (touchCount == 1) {
+  printer = new ChartPrinter();
+  if (touchCount == 0) {
     printer = new ChartPrinter();
   }
-  if (touchCount == 2) {
+  if (touchCount == 1) {
     printer = new TablePrinter();
   }
   printer->Print();
+}
+
+int freeRam () {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
 void WriteDhtToFile() {
