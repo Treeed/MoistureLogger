@@ -259,7 +259,7 @@ void ChartPrinter::PrintData(File dataFile) {
   int maxDatapoints = 326 / pointSize;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
-  tft.drawLine(120, 1, 120, 360 , ILI9341_WHITE);
+  tft.drawLine(120, 1, 120, 326 , ILI9341_WHITE);
 
   int row = 1;
   DhtData dhtDataBack[2];
