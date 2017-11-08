@@ -73,13 +73,13 @@ void setup() {
   (new TablePrinter())->Print();
 }
 
-unsigned long lastDhtMeasureMillis = 0;
 unsigned long dhtIntervalMillis = 2L * 60L * 1000L;
+unsigned long lastDhtMeasureMillis = 0;
 unsigned long dhtStartupMillis = 1500;
 int hdtWriteCount = 1;
 
 unsigned long tftOnMillis = 0;
-unsigned long tftOffIntervalMillis = 20L * 1000L;
+unsigned long tftOffIntervalMillis = 30L * 1000L;
 
 int touchCount = 0;
 bool isDisplayOn = false;
@@ -256,7 +256,7 @@ float GetValue(File dataFile) {
 
 void ChartPrinter::PrintData(File dataFile) {
   const int pointSize = 2;
-  int maxDatapoints = 360 / 2;
+  int maxDatapoints = 326 / pointSize;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
   tft.drawLine(120, 1, 120, 360 , ILI9341_WHITE);
@@ -291,31 +291,36 @@ void ChartPrinter::PrintData(File dataFile) {
           break;
       }
     }
-    //    tft.print(dhtData[0].temp, 1);
-    //    tft.print(" ");
-    //    tft.print(dhtData[0].humid, 1);
-    //    tft.print(" ");
-    //    tft.print(dhtData[0].dew, 1);
-    //    tft.print(" ");
-    //    tft.print(dhtData[1].temp, 1);
-    //    tft.print(" ");
-    //    tft.print(dhtData[1].humid, 1);
-    //    tft.print(" ");
-    //    tft.println(dhtData[1].dew, 1);
+//        tft.print(dhtData[0].temp, 1);
+//        tft.print(" ");
+//        tft.print(dhtData[0].humid, 1);
+//        tft.print(" ");
+//        tft.print(dhtData[0].dew, 1);
+//        tft.print(" ");
+//        tft.print(dhtData[1].temp, 1);
+//        tft.print(" ");
+//        tft.print(dhtData[1].humid, 1);
+//        tft.print(" ");
+//        tft.println(dhtData[1].dew, 1);
 
     if (row != 1) {
+      const float wallFactor = 0.8;
+      const int maxTemp = 40;
+      const int minTemp = -10;
       // DewIn - DewOut
-      tft.drawLine(map(dhtDataBack[0].dew - dhtDataBack[1].dew, -10, 35, 0, 120), row, map(dhtData[0].dew - dhtData[1].dew, -10, 35, 0, 120), row + pointSize, ILI9341_YELLOW);
+      tft.drawLine(map(dhtDataBack[0].dew - dhtDataBack[1].dew, minTemp, maxTemp, 0, 120), row, map(dhtData[0].dew - dhtData[1].dew, minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_YELLOW);
       // Temp Wall
-      tft.drawLine(map((dhtDataBack[0].temp - dhtDataBack[1].temp) / 1.5L, -10, 35, 0, 120), row, map((dhtData[0].temp - dhtData[1].temp) / 1.5L, -10, 35, 0, 120), row + pointSize, ILI9341_MAGENTA);
+      tft.drawLine(
+        map(dhtDataBack[0].temp * wallFactor + dhtDataBack[1].temp * (1 - wallFactor), minTemp, maxTemp, 0, 120), row,
+        map(dhtData[0].temp * wallFactor + dhtData[1].temp * (1 - wallFactor), minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_MAGENTA);
       // In
-      tft.drawLine(map(dhtDataBack[0].temp, -10, 35, 0, 120), row, map(dhtData[0].temp, -10, 35, 0, 120), row + pointSize, ILI9341_RED);
+      tft.drawLine(map(dhtDataBack[0].temp, minTemp, maxTemp, 0, 120), row, map(dhtData[0].temp, minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_RED);
       tft.drawLine(map(dhtDataBack[0].humid, 0, 100, 0, 120), row, map(dhtData[0].humid, 0, 100, 0, 120), row + pointSize, ILI9341_BLUE);
-      tft.drawLine(map(dhtDataBack[0].dew, -10, 35, 0, 120), row, map(dhtData[0].dew, -10, 35, 0, 120), row + pointSize, ILI9341_GREEN);
+      tft.drawLine(map(dhtDataBack[0].dew, minTemp, maxTemp, 0, 120), row, map(dhtData[0].dew, minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_GREEN);
       // Out
-      tft.drawLine(map(dhtDataBack[1].temp, -10, 35, 120, 240), row, map(dhtData[1].temp, -10, 35, 120, 240), row + pointSize, ILI9341_RED);
+      tft.drawLine(map(dhtDataBack[1].temp, minTemp, maxTemp, 120, 240), row, map(dhtData[1].temp, minTemp, maxTemp, 120, 240), row + pointSize, ILI9341_RED);
       tft.drawLine(map(dhtDataBack[1].humid, 0, 100, 120, 240), row, map(dhtData[1].humid, 0, 100, 120, 240), row + pointSize, ILI9341_BLUE);
-      tft.drawLine(map(dhtDataBack[1].dew, -10, 35, 120, 240), row, map(dhtData[1].dew, -10, 35, 120, 240), row + pointSize, ILI9341_GREEN);
+      tft.drawLine(map(dhtDataBack[1].dew, minTemp, maxTemp, 120, 240), row, map(dhtData[1].dew, minTemp, maxTemp, 120, 240), row + pointSize, ILI9341_GREEN);
     }
     row += pointSize;
 
