@@ -329,7 +329,6 @@ void ChartPrinter::PrintData(File dataFile) {
   }
 }
 
-
 void Printer::Print() {
   tft.fillScreen(ILI9341_BLACK);
   tft.setTextColor(ILI9341_GREEN);
