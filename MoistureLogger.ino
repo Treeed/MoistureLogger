@@ -92,7 +92,9 @@ void loop() {
   if (currentMillis - lastDhtMeasureMillis >= dhtIntervalMillis + dhtStartupMillis) {
     lastDhtMeasureMillis = currentMillis;
     WriteDhtToFile();
-    UpdatePrint(touchCount);
+    if (isDisplayOn) {
+      UpdatePrint(touchCount);
+    }
   }
 
   if (isDisplayOn && (currentMillis - tftOnMillis >= tftOffIntervalMillis)) {
@@ -127,14 +129,16 @@ void loop() {
 
 void UpdatePrint(int touchCount) {
   Printer *printer;
-  printer = new ChartPrinter();
   if (touchCount == 0) {
     printer = new ChartPrinter();
-  }
-  if (touchCount == 1) {
+  } else if (touchCount == 1) {
     printer = new TablePrinter();
+  } else {
+    printer = new ChartPrinter();
   }
   printer->Print();
+  delete printer;
+  printer = NULL;
 }
 
 int freeRam () {
@@ -162,8 +166,8 @@ void WriteDhtToFile() {
     dataFile.print(" ");
     dataFile.print(data2.dew, 1);
     dataFile.print(" ");
-    dataFile.print(freeRam());
-    dataFile.print(" ");
+    //    dataFile.print(freeRam());
+    //    dataFile.print(" ");
     dataFile.print(millis() / 60000);
     dataFile.println("");
     dataFile.close();
@@ -206,7 +210,7 @@ DhtData ReadDht(int dht, float factorHumidA, float factorHumidB) {
 }
 
 void TablePrinter::PrintData(File dataFile) {
-  WindFileToRowsFromEnd(dataFile, 9, true);
+  WindFileToRowsFromEnd(dataFile, 19, true);
 
   while (dataFile.available()) {
     tft.write(dataFile.read());
@@ -303,7 +307,7 @@ void ChartPrinter::PrintData(File dataFile) {
       }
     }
     GoToLineEnd(dataFile);
-    
+
     //        tft.print(dhtData[0].temp, 1);
     //        tft.print(" ");
     //        tft.print(dhtData[0].humid, 1);
