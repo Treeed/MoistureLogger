@@ -161,6 +161,10 @@ void WriteDhtToFile() {
     dataFile.print(data2.humid, 1);
     dataFile.print(" ");
     dataFile.print(data2.dew, 1);
+    dataFile.print(" ");
+    dataFile.print(freeRam());
+    dataFile.print(" ");
+    dataFile.print(millis() / 60000);
     dataFile.println("");
     dataFile.close();
 
@@ -202,7 +206,7 @@ DhtData ReadDht(int dht, float factorHumidA, float factorHumidB) {
 }
 
 void TablePrinter::PrintData(File dataFile) {
-  WindFileToRowsFromEnd(dataFile, 19, true);
+  WindFileToRowsFromEnd(dataFile, 9, true);
 
   while (dataFile.available()) {
     tft.write(dataFile.read());
@@ -233,6 +237,13 @@ void WindFileToRowsFromEnd(File dataFile, int rows, bool printInfo) {
     }
   }
 
+}
+
+void GoToLineEnd(File dataFile) {
+  char c = ' ';
+  while (c != '\n' && dataFile.available()) {
+    c = dataFile.read();
+  }
 }
 
 float GetValue(File dataFile) {
@@ -291,6 +302,8 @@ void ChartPrinter::PrintData(File dataFile) {
           break;
       }
     }
+    GoToLineEnd(dataFile);
+    
     //        tft.print(dhtData[0].temp, 1);
     //        tft.print(" ");
     //        tft.print(dhtData[0].humid, 1);
