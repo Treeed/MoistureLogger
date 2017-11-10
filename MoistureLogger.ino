@@ -172,10 +172,6 @@ void WriteDhtToFile() {
     dataFile.println("");
     dataFile.close();
 
-    tft.setTextColor(ILI9341_YELLOW);
-    tft.setCursor(60, 80);
-    tft.fillRect(60, 80, 100, 15, ILI9341_BLACK);
-    tft.print("sd written ");
     tft.print(hdtWriteCount++);
   }
 }
@@ -355,7 +351,6 @@ void ChartPrinter::PrintData(File dataFile) {
 
 
 void Printer::Print() {
-  tft.fillScreen(ILI9341_BLACK);
   tft.setTextColor(ILI9341_GREEN);
   tft.setTextFont(2);
   tft.setCursor(0, 0);
