@@ -274,6 +274,13 @@ void ChartPrinter::PrintData(File dataFile) {
   int maxDatapoints = 326 / pointSize;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
+  // Background structure
+  int greyVal = 50;
+  uint16_t color =  ((greyVal >> 3) << 11) | ((greyVal >> 2) << 5) | (greyVal >> 3);; //16 bit  0-31  0-63  0-31  65,536  RGB 565
+  tft.fillRect(0 * 48 + 24, 0, 24, 326, color);
+  tft.fillRect(1 * 48 + 24, 0, 24, 326, color);
+  tft.fillRect(3 * 48, 0, 24, 326, color);
+  tft.fillRect(4 * 48, 0, 24, 326, color);
   tft.drawLine(120, 1, 120, 326 , ILI9341_WHITE);
 
   int row = 1;
