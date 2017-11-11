@@ -39,7 +39,12 @@ class TablePrinter: public Printer {
     void PrintData(File file) override;
 };
 class ChartPrinter: public Printer {
+    int _zoom;
   public:
+    ChartPrinter() {}
+    ChartPrinter(int zoom) {
+      _zoom = zoom;
+    }
     void PrintData(File file) override;
 };
 
@@ -81,7 +86,7 @@ int hdtWriteCount = 1;
 unsigned long tftOnMillis = 0;
 unsigned long tftOffIntervalMillis = 60L * 1000L;
 
-int touchCount = 0;
+int touchCount = -1;
 bool isDisplayOn = false;
 void loop() {
   unsigned long currentMillis = millis();
@@ -101,7 +106,7 @@ void loop() {
     // Display off
     digitalWrite(3, HIGH);
     isDisplayOn = false;
-    touchCount = 0;
+    touchCount = -1;
   }
 
   boolean istouched = ts.touched();
@@ -112,13 +117,15 @@ void loop() {
     isDisplayOn = true;
 
     TS_Point p = ts.getPoint();
-
-    UpdatePrint(touchCount);
-    
-    touchCount++;
-    if (touchCount == 2) {
+    touchCount =  touchCount + (p.x > 1900 ? -1 : +1);
+    if (touchCount >= 3) {
       touchCount = 0;
     }
+    if (touchCount <= -1) {
+      touchCount = 2;
+    }
+
+    UpdatePrint(touchCount);
   }
   //Serial.println(freeRam());
 
@@ -126,13 +133,14 @@ void loop() {
 }
 
 void UpdatePrint(int touchCount) {
+  //Serial.println(touchCount);
   Printer *printer;
   if (touchCount == 0) {
-    printer = new ChartPrinter();
+    printer = new ChartPrinter(2);
   } else if (touchCount == 1) {
-    printer = new TablePrinter();
+    printer = new ChartPrinter(1);
   } else {
-    printer = new ChartPrinter();
+    printer = new TablePrinter();
   }
   printer->Print();
   delete printer;
@@ -264,7 +272,7 @@ float GetValue(File dataFile) {
 }
 
 void ChartPrinter::PrintData(File dataFile) {
-  const int pointSize = 1;
+  const int pointSize = _zoom;
   int maxDatapoints = (320 / pointSize) + 1;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
