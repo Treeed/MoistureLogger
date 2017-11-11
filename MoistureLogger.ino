@@ -73,13 +73,13 @@ void setup() {
   (new TablePrinter())->Print();
 }
 
-unsigned long dhtIntervalMillis = 2L * 60L * 1000L;
+unsigned long dhtIntervalMillis = 5L * 60L * 1000L;
 unsigned long lastDhtMeasureMillis = 0;
 unsigned long dhtStartupMillis = 1500;
 int hdtWriteCount = 1;
 
 unsigned long tftOnMillis = 0;
-unsigned long tftOffIntervalMillis = 30L * 1000L;
+unsigned long tftOffIntervalMillis = 60L * 1000L;
 
 int touchCount = 0;
 bool isDisplayOn = false;
@@ -106,10 +106,6 @@ void loop() {
 
   boolean istouched = ts.touched();
   if (istouched) {
-    if (isDisplayOn) {
-      touchCount++;
-    }
-
     // Display on
     tftOnMillis = currentMillis;
     digitalWrite(3, LOW);
@@ -118,8 +114,10 @@ void loop() {
     TS_Point p = ts.getPoint();
 
     UpdatePrint(touchCount);
-    if (touchCount == 1) {
-      touchCount = -1;
+    
+    touchCount++;
+    if (touchCount == 2) {
+      touchCount = 0;
     }
   }
   //Serial.println(freeRam());
@@ -266,7 +264,7 @@ float GetValue(File dataFile) {
 }
 
 void ChartPrinter::PrintData(File dataFile) {
-  const int pointSize = 2;
+  const int pointSize = 1;
   int maxDatapoints = (320 / pointSize) + 1;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
