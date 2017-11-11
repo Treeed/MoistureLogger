@@ -267,7 +267,7 @@ float GetValue(File dataFile) {
 
 void ChartPrinter::PrintData(File dataFile) {
   const int pointSize = 2;
-  int maxDatapoints = 326 / pointSize;
+  int maxDatapoints = (320 / pointSize) + 1;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
   // Background structure
@@ -327,20 +327,21 @@ void ChartPrinter::PrintData(File dataFile) {
       const float wallFactor = 0.8;
       const int maxTemp = 40;
       const int minTemp = -10;
+      int yPos = row - pointSize;
       // In
-      tft.drawLine(map(dhtDataBack[0].temp, minTemp, maxTemp, 0, 120), row, map(dhtData[0].temp, minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_RED);
-      tft.drawLine(map(dhtDataBack[0].humid, 0, 100, 0, 120), row, map(dhtData[0].humid, 0, 100, 0, 120), row + pointSize, ILI9341_BLUE);
-      tft.drawLine(map(dhtDataBack[0].dew, minTemp, maxTemp, 0, 120), row, map(dhtData[0].dew, minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_GREEN);
+      tft.drawLine(map(dhtDataBack[0].temp, minTemp, maxTemp, 0, 120), yPos, map(dhtData[0].temp, minTemp, maxTemp, 0, 120), yPos + pointSize, ILI9341_RED);
+      tft.drawLine(map(dhtDataBack[0].humid, 0, 100, 0, 120), yPos, map(dhtData[0].humid, 0, 100, 0, 120), yPos + pointSize, ILI9341_BLUE);
+      tft.drawLine(map(dhtDataBack[0].dew, minTemp, maxTemp, 0, 120), yPos, map(dhtData[0].dew, minTemp, maxTemp, 0, 120), yPos + pointSize, ILI9341_GREEN);
       // Out
-      tft.drawLine(map(dhtDataBack[1].temp, minTemp, maxTemp, 120, 240), row, map(dhtData[1].temp, minTemp, maxTemp, 120, 240), row + pointSize, ILI9341_RED);
-      tft.drawLine(map(dhtDataBack[1].humid, 0, 100, 120, 240), row, map(dhtData[1].humid, 0, 100, 120, 240), row + pointSize, ILI9341_BLUE);
-      tft.drawLine(map(dhtDataBack[1].dew, minTemp, maxTemp, 120, 240), row, map(dhtData[1].dew, minTemp, maxTemp, 120, 240), row + pointSize, ILI9341_GREEN);
+      tft.drawLine(map(dhtDataBack[1].temp, minTemp, maxTemp, 120, 240), yPos, map(dhtData[1].temp, minTemp, maxTemp, 120, 240), yPos + pointSize, ILI9341_RED);
+      tft.drawLine(map(dhtDataBack[1].humid, 0, 100, 120, 240), yPos, map(dhtData[1].humid, 0, 100, 120, 240), yPos + pointSize, ILI9341_BLUE);
+      tft.drawLine(map(dhtDataBack[1].dew, minTemp, maxTemp, 120, 240), yPos, map(dhtData[1].dew, minTemp, maxTemp, 120, 240), yPos + pointSize, ILI9341_GREEN);
       // DewIn - DewOut
-      tft.drawLine(map(dhtDataBack[0].dew - dhtDataBack[1].dew + minTemp, minTemp, maxTemp, 0, 120), row, map(dhtData[0].dew - dhtData[1].dew + minTemp, minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_YELLOW);
+      tft.drawLine(map(dhtDataBack[0].dew - dhtDataBack[1].dew + minTemp, minTemp, maxTemp, 0, 120), yPos, map(dhtData[0].dew - dhtData[1].dew + minTemp, minTemp, maxTemp, 0, 120), yPos + pointSize, ILI9341_YELLOW);
       // Temp Wall
       tft.drawLine(
-        map(dhtDataBack[0].temp * wallFactor + dhtDataBack[1].temp * (1 - wallFactor), minTemp, maxTemp, 0, 120), row,
-        map(dhtData[0].temp * wallFactor + dhtData[1].temp * (1 - wallFactor), minTemp, maxTemp, 0, 120), row + pointSize, ILI9341_LIGHTGREY);
+        map(dhtDataBack[0].temp * wallFactor + dhtDataBack[1].temp * (1 - wallFactor), minTemp, maxTemp, 0, 120), yPos,
+        map(dhtData[0].temp * wallFactor + dhtData[1].temp * (1 - wallFactor), minTemp, maxTemp, 0, 120), yPos + pointSize, ILI9341_LIGHTGREY);
     }
     row += pointSize;
 
