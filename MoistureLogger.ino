@@ -220,29 +220,27 @@ void TablePrinter::PrintData(File dataFile) {
 }
 
 void WindFileToRowsFromEnd(File dataFile, int rows, bool printInfo) {
-  int datacount = 0;
-
-  while (dataFile.available()) {
-    if (dataFile.read() == '\n') {
-      datacount++;
-    }
-  }
+  unsigned long dataPosition = dataFile.size();
 
   if (printInfo) {
-    tft.print("Data rows found ");
-    tft.print(datacount);
-    tft.print(" last ");
+    tft.print("Data size ");
+    tft.print(dataPosition / 1000);
+    tft.print(" kb. List of ");
     tft.print(rows);
     tft.println(" rows:");
   }
 
-  dataFile.seek(0);
-  while (dataFile.available() && datacount > rows) {
-    if (dataFile.read() == '\n') {
-      datacount--;
+  dataFile.seek(dataPosition - 1);
+  int rowsToGoBack = rows + 1;
+  while (rowsToGoBack > 0 && dataPosition > 0) {
+    if (dataFile.peek() == '\n') {
+      rowsToGoBack--;
+      dataPosition -= 20; // Rows are min 20 char long.
     }
+    dataFile.seek(dataPosition--);
   }
 
+  GoToLineEnd(dataFile);
 }
 
 void GoToLineEnd(File dataFile) {
@@ -273,7 +271,7 @@ float GetValue(File dataFile) {
 
 void ChartPrinter::PrintData(File dataFile) {
   const int pointSize = _zoom;
-  int maxDatapoints = (320 / pointSize) + 1;
+  int maxDatapoints = (320 / pointSize) - 1;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
   // Background structure
