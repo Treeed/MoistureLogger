@@ -39,10 +39,10 @@ class TablePrinter: public Printer {
     void PrintData(File file) override;
 };
 class ChartPrinter: public Printer {
-    int _zoom;
+    float _zoom;
   public:
     ChartPrinter() {}
-    ChartPrinter(int zoom) {
+    ChartPrinter(float zoom) {
       _zoom = zoom;
     }
     void PrintData(File file) override;
@@ -118,11 +118,12 @@ void loop() {
 
     TS_Point p = ts.getPoint();
     touchCount =  touchCount + (p.x > 1900 ? -1 : +1);
-    if (touchCount >= 3) {
+    const int screenCount = 5; // 0...screenCount-1
+    if (touchCount > screenCount - 1) {
       touchCount = 0;
     }
-    if (touchCount <= -1) {
-      touchCount = 2;
+    if (touchCount < 0) {
+      touchCount = screenCount - 1;
     }
 
     UpdatePrint(touchCount);
@@ -139,6 +140,10 @@ void UpdatePrint(int touchCount) {
     printer = new ChartPrinter(2);
   } else if (touchCount == 1) {
     printer = new ChartPrinter(1);
+  } else if (touchCount == 2) {
+    printer = new ChartPrinter(.5);
+  } else if (touchCount == 3) {
+    printer = new ChartPrinter(.25);
   } else {
     printer = new TablePrinter();
   }
@@ -270,7 +275,7 @@ float GetValue(File dataFile) {
 }
 
 void ChartPrinter::PrintData(File dataFile) {
-  const int pointSize = _zoom;
+  float pointSize = _zoom;
   int maxDatapoints = (320 / pointSize) - 1;
   WindFileToRowsFromEnd(dataFile, maxDatapoints, false);
 
@@ -283,7 +288,7 @@ void ChartPrinter::PrintData(File dataFile) {
   tft.fillRect(4 * 48, 0, 24, 326, color);
   tft.drawLine(120, 1, 120, 326 , ILI9341_WHITE);
 
-  int row = 1;
+  float row = 1;
   DhtData dhtDataBack[2];
   while (dataFile.available()) {
     DhtData dhtData[2];
@@ -328,10 +333,10 @@ void ChartPrinter::PrintData(File dataFile) {
     //        tft.println(dhtData[1].dew, 1);
 
     if (row != 1) {
-      const float wallFactor = 0.8;
+      const float wallFactor = 0.7;
       const int maxTemp = 40;
       const int minTemp = -10;
-      int yPos = row - pointSize;
+      int yPos = round(row - pointSize);
       // In
       tft.drawLine(map(dhtDataBack[0].temp, minTemp, maxTemp, 0, 120), yPos, map(dhtData[0].temp, minTemp, maxTemp, 0, 120), yPos + pointSize, ILI9341_RED);
       tft.drawLine(map(dhtDataBack[0].humid, 0, 100, 0, 120), yPos, map(dhtData[0].humid, 0, 100, 0, 120), yPos + pointSize, ILI9341_BLUE);
