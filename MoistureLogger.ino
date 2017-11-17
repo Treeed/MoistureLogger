@@ -48,7 +48,7 @@ class ChartPrinter: public Printer {
     void PrintData(File file) override;
 };
 
-TFT_ILI9341 tft = TFT_ILI9341();  // Invoke library
+TFT_ILI9341 tft = TFT_ILI9341();
 
 #define TIRQ_PIN 2
 
